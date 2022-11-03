@@ -1,7 +1,8 @@
 plugins {
-	id 'org.springframework.boot' version '2.6.13'
-	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+	id 'org.springframework.boot' version '2.3.0.RELEASE'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 	id 'java'
+	id 'jacoco'
 }
 
 group = 'com.ms.corptsy'
@@ -12,15 +13,42 @@ configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
+	integrationTestImplemenation.extendsFrom testImplementation
+	integrationTestRuntimeOnly.extendsFrom runtimeOnly
 }
 
 repositories {
 	mavenCentral()
 }
 
+configurations.all {
+	resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+		if (details.requested.group == 'org.apache.logging.log4j') {
+			details.useVersion '2.15.0'
+		}
+	}
+}
+
+ext {
+	set('springCloudVersion', "Hoxton.SR10")
+}
+
+sourceSets {
+	integrationTest {
+		compileClasspath += sourceSets.main.output
+		runtimeClasspath += sourceSets.main.output
+	}
+}
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-web'
 	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+
+
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
